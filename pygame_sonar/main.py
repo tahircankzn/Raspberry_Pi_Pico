@@ -1,15 +1,27 @@
+import serial 
+import time 
 import pygame
-import time
-import math
+
+ser = serial.Serial('COM4', 9600)
+time.sleep(2) 
+
+def send():
+    
+
+    
+
+    data = ser.readline() # bytes nesnesi
+    text = data.decode("utf-8") # string nesnesi  ISO-8859-9   "utf-8"
+    return text # metni yazdır
+
+
 
 pygame.display.set_caption("Sonar")
 pygame.init()
 screen = pygame.display.set_mode((640, 480))
 
 screen.fill((0, 0, 0)) 
-line_x = [*range(-17,18,1)] #[*range(-320,320,1)]  # [*range(-17,18,1)]
-line_x_2 = [*range(-320,321,1)]
-key2 = 1
+line_x = [*range(-17,18,1)]
 class line():
     def __init__(self,a):
         self.a = a
@@ -17,11 +29,11 @@ class line():
     def draw_hist(self):
         
         try:
-            x = line_x_2[self.a]    
-            y = int(math.sqrt(318**2-x**2))
+            x = line_x[self.a]    
+            y = -1*(x**2)+320
             #print(480-y)
             
-            pygame.draw.line(screen,color = (0,0,255),start_pos=(320,480),end_pos=(320+x,480-y),width=5)
+            pygame.draw.line(screen,color = (50,0,0),start_pos=(320,470),end_pos=(320+x*18,480-y),width=5)
         except:
             pass
         
@@ -43,28 +55,17 @@ def draw(a):
     #line_x = [*range(-320,321,1)]
     for i in line_hold:
         i.draw_hist()
-        
-                                        # kök r**2 - x**2 = y
+
     #for x in line_x:
-    def cycle1():
-        try:
-            x = line_x[a]    
-            y = -1*(x**2)+320
-            #print(480-y)
-            
-            pygame.draw.line(screen,color = (255,0,0),start_pos=(320,470),end_pos=(320+x*18,480-y),width=5)
-        except:
-            pass
-    def cycle2():
-        try:
-            x = line_x_2[a]    
-            y = int(math.sqrt(318**2-x**2))
-            #print(480-y)
-            #print(320+x,480-y , x ,y)
-            pygame.draw.line(screen,color = (255,0,0),start_pos=(320,480),end_pos=(320+x,480-y),width=5)
-        except:
-            pass
-    cycle2()
+    try:
+        x = line_x[a]    
+        y = -1*(x**2)+320
+        #print(480-y)
+        
+        pygame.draw.line(screen,color = (255,0,0),start_pos=(320,470),end_pos=(320+x*18,480-y),width=5)
+    except:
+        pass
+
 
     #pygame.draw.line(screen,color = (0,0,255),start_pos=(320,470),end_pos=(320+320,480-0),width=5)
     #pygame.draw.line(screen,color = (0,0,255),start_pos=(320,470),end_pos=(320,480-320),width=5)
@@ -79,47 +80,33 @@ key = 0
 hold_time = None
 while running:
     clock.tick(120)
-    draw(a)
-    #print(hold_time,time.time(),hold_time + 5 < time.time())
+    data = int(send())
+    if data >=100:
+        data -=100
+        line_hold.append(line(data))
+    draw(data)
+    
     if hold_time == None:
         hold_time = time.time()
-    elif hold_time + 3 < time.time():
+    elif hold_time + 1 < time.time():
         line_hold = []
         hold_time = None
-    
 
     # Test  ###########################
-    
-    if a == 200:
-        line_hold.append(line(a))
-        print(1)
+    """if a == 5 or a == -5 or a == 6 or a == 15:
+        line_hold.append(line(a))"""
     ###################################
 
-    if key2 == 0:
-        if key == 0:
-            a+=1
-            if a == 36:
-                key = 1
-            
-        elif key == 1:
-            a-=1
-            if a == 0:
-                key = 0
 
-    elif key2 == 1:
-        if key == 0:
-            a+=1
-            if a == 640:
-                key = 1
-            
-        elif key == 1:
-            a-=1
-            if a == 0:
-                key = 0
-
-   
-    
-    
+    """if key == 0:
+        a+=1
+        if a == 36:
+            key = 1
+        
+    elif key == 1:
+        a-=1
+        if a == 0:
+            key = 0"""
 
     for event in pygame.event.get():
         
